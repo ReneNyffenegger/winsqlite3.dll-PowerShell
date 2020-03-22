@@ -1,8 +1,10 @@
-#
-#   Version 0.01
-#
-#   Compare with https://renenyffenegger.ch/notes/development/databases/SQLite/VBA/index
-#
+<#
+    P/Invoke wrappers that allow to access winsqlite3.dll
+
+    Version 0.02
+
+    Compare with https://renenyffenegger.ch/notes/development/databases/SQLite/VBA/index
+#>
 
 set-strictMode -version 2
 
@@ -131,4 +133,3 @@ public static partial class sqlite {
 
 }
 "@
-

@@ -1,6 +1,14 @@
+<#
+   Tests for accessing the winsqlite3.dll
+
+   Version 0.02
+#>
+
 set-strictMode -version 2
 
 [sqliteDB] $db = [sqliteDB]::new("$($pwd)\the.db", $true)
+
+[sqliteDB]::version()
 
 #
 #  $db.exec writes warning if statement has error.

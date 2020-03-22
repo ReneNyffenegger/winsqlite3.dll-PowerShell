@@ -132,6 +132,15 @@ class sqliteDB {
    [String] errmsg() {
       return charPtrToString ([sqlite]::errmsg($this.db))
    }
+
+   static [String] version() {
+      $h = [kernel32]::GetModuleHandle('winsqlite3.dll')
+      if ($h -eq 0) {
+         return 'winsqlite3.dll is probably not yet loaded'
+      }
+      $a = [kernel32]::GetProcAddress($h, 'sqlite3_version')
+      return charPtrToString $a
+   }
 }
 
 class sqliteStmt {
@@ -140,7 +149,7 @@ class sqliteStmt {
    [sqliteDB] hidden $db
 
  #
- # Poor man's management of allocated memor on the heap.
+ # Poor man's management of allocated memory on the heap.
  # This is necessary(?) because the SQLite statement interface expects
  # a char* pointer when binding text. This char* pointer must
  # still be valid at the time when the statement is executed.
@@ -265,4 +274,3 @@ class sqliteStmt {
       }
    }
 }
-
