@@ -110,6 +110,7 @@ class sqliteDB {
       if ($res -ne [sqlite]::OK) {
          write-warning "prepareStmt: sqlite3_prepare failed, res = $res"
          write-warning ($this.errmsg())
+         return $null
       }
       return $stmt
    }
