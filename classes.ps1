@@ -1,3 +1,6 @@
+#
+#  Version 0.03
+#
 set-strictMode -version 2
 
 function charPtrToString([IntPtr]$charPtr) {
@@ -208,10 +211,10 @@ class sqliteStmt {
          [IntPtr] $retPtr = [Runtime.InteropServices.Marshal]::FreeHGlobal($p);
       }
 
-     #
-     # Free the alloc'd memory that was necessary to pass
-     # strings to the sqlite engine:
-     #
+    #
+    # Free the alloc'd memory that was necessary to pass
+    # strings to the sqlite engine:
+    #
       $this.heapAllocs = @()
 
       return $res
@@ -225,11 +228,31 @@ class sqliteStmt {
       }
    }
 
+
+   [Int32] column_count() {
+     #
+     # column_count returns the number of columns of
+     # a select statement.
+     #
+     # For non-select statemnt (insert, delete…), column_count
+     # return 0.
+     #
+       return [sqlite]::column_count($this.handle)
+   }
+
+
+   [Int32] column_type(
+         [Int] $index
+   ) {
+       return [sqlite]::column_type($this.handle, $index)
+   }
+
+
    [object] col(
          [Int] $index
    ) {
 
-      $colType =[sqlite]::column_type($this.handle, $index)
+      $colType =$this.column_type($index)
       switch ($colType) {
 
          ([sqlite]::INTEGER) {

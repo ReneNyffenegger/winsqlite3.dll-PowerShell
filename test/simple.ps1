@@ -1,7 +1,7 @@
 <#
    Tests for accessing the winsqlite3.dll
 
-   Version 0.02
+   Version 0.03
 #>
 
 set-strictMode -version 2
@@ -53,6 +53,9 @@ $db.exec('rollback')
 $stmt.finalize()
 
 $stmt = $db.prepareStmt('select * from tab where foo > ? order by foo')
+
+write-host "column count of stmt: $($stmt.column_count())"
+
 $stmt.Bind(1, 50)
 
 while ( $stmt.step()  -ne [sqlite]::DONE ) {
@@ -61,4 +64,3 @@ while ( $stmt.step()  -ne [sqlite]::DONE ) {
 
 $stmt.finalize()
 $db.close()
-
