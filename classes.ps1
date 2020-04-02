@@ -194,11 +194,17 @@ class sqliteStmt {
          throw "type $($value.GetType()) not (yet?) supported"
       }
 
-      if ($res -ne [sqlite]::OK) {
-         write-warning $this.db.errmsg()
-         write-warning "index: $index, value: $value"
-         throw "sqliteBind: res = $res"
+      if ($res -eq [sqlite]::OK) {
+         return
       }
+
+      if ($res -eq [SQLite]::RANGE) {
+         throw "sqliteBind: index $index with value = $value is out of range"
+      }
+
+      write-warning $this.db.errmsg()
+      write-warning "index: $index, value: $value"
+      throw "sqliteBind: res = $res"
    }
 
    [IntPtr] step() {
