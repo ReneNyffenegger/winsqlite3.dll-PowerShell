@@ -1,5 +1,5 @@
 #
-#  Version 0.03
+#  Version 0.04
 #
 set-strictMode -version 2
 
@@ -131,6 +131,10 @@ class sqliteDB {
          write-error ($this.errmsg())
          throw "Could not close database"
       }
+   }
+
+   [Int64] last_insert_rowid() {
+       return [sqlite]::last_insert_rowid($this.db)
    }
 
    [String] errmsg() {

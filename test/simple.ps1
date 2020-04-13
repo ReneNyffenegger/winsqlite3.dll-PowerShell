@@ -1,7 +1,7 @@
 <#
    Tests for accessing the winsqlite3.dll
 
-   Version 0.03
+   Version 0.04
 #>
 
 set-strictMode -version 2
