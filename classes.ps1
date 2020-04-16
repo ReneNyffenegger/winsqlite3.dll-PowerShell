@@ -240,8 +240,13 @@ class sqliteStmt {
    [void] reset() {
       $res = [sqlite]::reset($this.handle)
 
+      if ($res -eq [SQLite]::CONSTRAINT) {
+         write-warning ($this.db.errmsg())
+         throw "sqliteRest: violation of constraint"
+      }
+
       if ($res -ne [sqlite]::OK) {
-         throw "sqliteBind: res = $res"
+         throw "sqliteReset: res = $res"
       }
    }
 

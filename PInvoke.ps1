@@ -17,6 +17,7 @@ public static partial class sqlite {
    public const Int32 OK             =   0;
    public const Int32 ERROR          =   1;
    public const Int32 BUSY           =   5;
+   public const Int32 CONSTRAINT     =  19; //  Violation of SQL constraint
    public const Int32 MISUSE         =  21; //  SQLite interface was used in a undefined/unsupported way (i.e. using prepared statement after finalizing it)
    public const Int32 RANGE          =  25; //  Out-of-range index in sqlite3_bind_…() or sqlite3_column_…() functions.
    public const Int32 ROW            = 100; //  sqlite3_step() has another row ready
