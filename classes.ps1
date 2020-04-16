@@ -1,5 +1,5 @@
 #
-#  Version 0.04
+#  Version 0.05
 #
 set-strictMode -version 2
 
@@ -191,8 +191,14 @@ class sqliteStmt {
        #
          $this.heapAllocs += $heapPtr
       }
-      elseif ($value -is [Int]) {
+      elseif ( $value -is [Int32]) {
          $res = [sqlite]::bind_int($this.handle, $index, $value)
+      }
+      elseif ( $value -is [Int64]) {
+         $res = [sqlite]::bind_int64($this.handle, $index, $value)
+      }
+      elseif ( $value -is [Double]) {
+         $res = [sqlite]::bind_double($this.handle, $index, $value)
       }
       else {
          throw "type $($value.GetType()) not (yet?) supported"
@@ -267,10 +273,15 @@ class sqliteStmt {
       switch ($colType) {
 
          ([sqlite]::INTEGER) {
-            return [sqlite]::column_int($this.handle, $index)
+          #
+          # Be safe and return 64-bit integer because there does
+          # not seem a way to determine if a 32 or 64-bit integer
+          # was inserted.
+          #
+            return [sqlite]::column_int64($this.handle, $index)
          }
          ([sqlite]::FLOAT)   {
-            return [sqlite]::column_float($this.handle, $index)
+            return [sqlite]::column_double($this.handle, $index)
          }
          ([sqlite]::TEXT)    {
             [IntPtr] $charPtr = [sqlite]::column_text($this.handle, $index)

@@ -1,7 +1,7 @@
 <#
     P/Invoke wrappers that allow to access winsqlite3.dll
 
-    Version 0.04
+    Version 0.05
 
     Compare with https://renenyffenegger.ch/notes/development/databases/SQLite/VBA/index
 #>
@@ -64,6 +64,19 @@ public static partial class sqlite {
            IntPtr /* int */ index,
            IntPtr /* int */ value);
 
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_bind_int64")]
+    public static extern IntPtr bind_int64(
+           IntPtr           stmt,
+           IntPtr /* int */ index,  // TODO: Is IntPtr correct?
+           Int64            value);
+
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_bind_double")]
+    public static extern IntPtr bind_double (
+           IntPtr           stmt,
+           IntPtr           index,
+           Double           value
+    );
+
    [DllImport("winsqlite3.dll", EntryPoint="sqlite3_bind_text")]
     public static extern IntPtr bind_text(
            IntPtr    stmt,
@@ -73,6 +86,7 @@ public static partial class sqlite {
            IntPtr    x     , /* What does this parameter do? */
            IntPtr    y       /* void(*)(void*)               */
      );
+
    [DllImport("winsqlite3.dll", EntryPoint="sqlite3_bind_null")]
     public static extern IntPtr bind_null (
            IntPtr    stmt,
@@ -94,7 +108,7 @@ public static partial class sqlite {
             IntPtr   stmt
     );
 
-   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_type")]
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_type")] // Compare with sqlite3_column_decltype()
     public static extern IntPtr column_type (
             IntPtr   stmt,
             IntPtr   index
@@ -106,8 +120,14 @@ public static partial class sqlite {
             IntPtr   index
    );
 
-   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_int")]
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_int")] // TODO: should not generally sqlite3_column_int64 be used?
     public static extern IntPtr column_int(
+            IntPtr   stmt,
+            IntPtr   index
+    );
+
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_int64")]
+    public static extern Int64 column_int64(
             IntPtr   stmt,
             IntPtr   index
     );
