@@ -200,6 +200,9 @@ class sqliteStmt {
       elseif ( $value -is [Double]) {
          $res = [sqlite]::bind_double($this.handle, $index, $value)
       }
+      elseif ( $value -is [Bool]) {
+         $res = [sqlite]::bind_double($this.handle, $index, $value)
+      }
       else {
          throw "type $($value.GetType()) not (yet?) supported"
       }

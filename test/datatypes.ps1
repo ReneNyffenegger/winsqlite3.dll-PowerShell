@@ -27,13 +27,17 @@ $db.exec('create table T (
 
 $stmtIns = $db.prepareStmt('insert into T values (?, ?)');
 
-$stmtIns.bindArrayStepReset( (1,                  1 ))
-$stmtIns.bindArrayStepReset( (2,                 -2 ))
-$stmtIns.bindArrayStepReset( (3,        0x987654321 )) # 64 bit number
-$stmtIns.bindArrayStepReset( (4, 0xffffffffffffffff )) # 64 bit number
-$stmtIns.bindArrayStepReset( (5,'0xfedcba9876543210')) # String
-$stmtIns.bindArrayStepReset( (6,              12.34 )) # Real (Double)
-$stmtIns.bindArrayStepReset( (7,              $null ))
+$stmtIns.bindArrayStepReset( ( 1,                  1 ))
+$stmtIns.bindArrayStepReset( ( 2,                 -2 ))
+$stmtIns.bindArrayStepReset( ( 3,        0x987654321 )) # 64 bit number
+$stmtIns.bindArrayStepReset( ( 4, 0xffffffffffffffff )) # 64 bit number
+$stmtIns.bindArrayStepReset( ( 5,'0xfedcba9876543210')) # String
+$stmtIns.bindArrayStepReset( ( 6,              12.34 )) # Real (Double)
+$stmtIns.bindArrayStepReset( ( 7,              $null ))
+$stmtIns.bindArrayStepReset( ( 8,              $true ))
+$stmtIns.bindArrayStepReset( ( 9,              $false))
+$stmtIns.bindArrayStepReset( (10,              $true ))
+$stmtIns.bindArrayStepReset( (11,              $false))
 
 $stmtIns.finalize()
 
@@ -46,6 +50,10 @@ compare_next_row $stmtSel  4                  -1    # -1 == 0xffffffffffffffff i
 compare_next_row $stmtSel  5 '0xfedcba9876543210'
 compare_next_row $stmtSel  6               12.34
 compare_next_row $stmtSel  7               $null
+compare_next_row $stmtSel  8               $true
+compare_next_row $stmtSel  9               $false
+compare_next_row $stmtSel 10                   1   # $true  is stored as 1
+compare_next_row $stmtSel 11                   0   # $false is stored as 0
 
 $stmtSel.finalize()
 
