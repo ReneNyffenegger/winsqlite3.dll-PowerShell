@@ -211,6 +211,11 @@ class sqliteStmt {
          return
       }
 
+      if ($res -eq [SQLite]::MISUSE) {
+         write-warning $this.db.errmsg()
+         throw "sqliteBind: interface was used in undefined/unsupported way (index = $index, value = $value)"
+      }
+
       if ($res -eq [SQLite]::RANGE) {
          throw "sqliteBind: index $index with value = $value is out of range"
       }
