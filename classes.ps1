@@ -1,25 +1,31 @@
 #
-#  Version 0.05
+#  Version 0.06
 #
 set-strictMode -version 2
 
-function charPtrToString([IntPtr]$charPtr) {
-   [OutputType([String])]
+function utf8PointerToStr([IntPtr]$charPtr) {
+  [OutputType([String])]
  #
  # Create a .NET/PowerShell string from the bytes
  # that are pointed at by $charPtr
  #
    [IntPtr] $i = 0
+   [IntPtr] $len = 0
 
-   $strB = new-object Text.StringBuilder
-   while ( [Runtime.InteropServices.Marshal]::ReadByte($charPtr, $i) -gt 0 ) {
-      $null = $strB.Append( [Runtime.InteropServices.Marshal]::ReadByte($charPtr, $i) -as [Char] )
-      $i=$i+1
+   while ( [Runtime.InteropServices.Marshal]::ReadByte($charPtr, $len) -gt 0 ) {
+     $len=$len+1
    }
-   return $strB.ToString()
+   [byte[]] $byteArray = new-object byte[] $len
+
+   while ( [Runtime.InteropServices.Marshal]::ReadByte($charPtr, $i) -gt 0 ) {
+      $byteArray[$i] = [Runtime.InteropServices.Marshal]::ReadByte($charPtr, $i)
+       $i=$i+1
+   }
+
+   return [System.Text.Encoding]::UTF8.GetString($byteArray)
 }
 
-function strToCharPtr([String] $str) {
+function strToUtf8Pointer([String] $str) {
    [OutputType([IntPtr])]
  #
  # Create a UTF-8 byte array on the unmanaged heap
@@ -90,7 +96,9 @@ class sqliteDB {
    ) {
 
      [String]$errMsg = ''
-      $res = [sqlite]::exec($this.db, $sql, 0, 0, [ref] $errMsg)
+     [IntPtr] $heapPtr = strToUtf8Pointer($sql)
+      $res = [sqlite]::exec($this.db, $heapPtr, 0, 0, [ref] $errMsg)
+      [Runtime.InteropServices.Marshal]::FreeHGlobal($heapPtr);
 
       if ($res -ne [sqlite]::OK) {
          write-warning "sqliteExec: $errMsg"
@@ -138,7 +146,7 @@ class sqliteDB {
    }
 
    [String] errmsg() {
-      return charPtrToString ([sqlite]::errmsg($this.db))
+      return utf8PointerToStr ([sqlite]::errmsg($this.db))
    }
 
    static [String] version() {
@@ -147,7 +155,7 @@ class sqliteDB {
          return 'winsqlite3.dll is probably not yet loaded'
       }
       $a = [kernel32]::GetProcAddress($h, 'sqlite3_version')
-      return charPtrToString $a
+      return utf8PointerToStr $a
    }
 }
 
@@ -183,8 +191,15 @@ class sqliteStmt {
          $res = [sqlite]::bind_null($this.handle, $index)
       }
       elseif ($value -is [String]) {
-         [IntPtr] $heapPtr = strToCharPtr($value)
-         $res = [sqlite]::bind_text($this.handle, $index, $heapPtr, $value.length, 0)
+         [IntPtr] $heapPtr = strToUtf8Pointer($value)
+
+       #
+       # The fourth parameter to sqlite3_bind_text() specifies the
+       # length of data that is pointed at in the third parameter ($heapPtr).
+       # A negative value indicates that the data is terminated by a byte
+       # whose value is zero.
+       #
+         $res = [sqlite]::bind_text($this.handle, $index, $heapPtr, -1, 0)
 
        #
        # Keep track of allocations on heap, free later
@@ -287,7 +302,7 @@ class sqliteStmt {
 
          ([sqlite]::INTEGER) {
           #
-          # Be safe and return 64-bit integer because there does
+          # Be safe and return a 64-bit integer because there does
           # not seem a way to determine if a 32 or 64-bit integer
           # was inserted.
           #
@@ -298,7 +313,7 @@ class sqliteStmt {
          }
          ([sqlite]::TEXT)    {
             [IntPtr] $charPtr = [sqlite]::column_text($this.handle, $index)
-            return charPtrToString $charPtr
+            return utf8PointerToStr $charPtr
          }
          ([sqlite]::BLOB)   {
             return "TODO: blob"
@@ -319,7 +334,6 @@ class sqliteStmt {
           $this.bind($colNo, $col)
           $colNo ++
       }
-      #$null = sqliteStep  $stmt
       $this.step()
       $this.reset()
    }

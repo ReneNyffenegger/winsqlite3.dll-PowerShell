@@ -1,7 +1,7 @@
 <#
     P/Invoke wrappers that allow to access winsqlite3.dll
 
-    Version 0.05
+    Version 0.06
 
     Compare with https://renenyffenegger.ch/notes/development/databases/SQLite/VBA/index
 #>
@@ -36,10 +36,13 @@ public static partial class sqlite {
        ref IntPtr ppDB       // db handle
     );
 
-   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_exec", CharSet=CharSet.Ansi)]
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_exec"
+// , CharSet=CharSet.Ansi
+   )]
     public static extern IntPtr exec (
            IntPtr db      ,    /* An open database                                               */
-           String sql     ,    /* SQL to be evaluated                                            */
+//         String sql     ,    /* SQL to be evaluated                                            */
+           IntPtr sql     ,    /* SQL to be evaluated                                            */
            IntPtr callback,    /* int (*callback)(void*,int,char**,char**) -- Callback function  */
            IntPtr cb1stArg,    /* 1st argument to callback                                       */
        ref String errMsg       /* Error msg written here  ( char **errmsg)                       */
@@ -134,7 +137,7 @@ public static partial class sqlite {
     );
 
    [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_text"
-     , CharSet=CharSet.Ansi
+//   , CharSet=CharSet.Ansi
     )]
 // [return: MarshalAs(UnmanagedType.LPStr)]
     public static extern IntPtr column_text (
