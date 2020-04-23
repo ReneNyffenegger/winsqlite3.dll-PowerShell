@@ -242,11 +242,6 @@ class sqliteStmt {
 
    [IntPtr] step() {
       $res = [sqlite]::step($this.handle)
-
-   #  if ($res -ne [sqlite]::DONE) {
-   #     throw "sqliteStep: res = $res"
-   #  }
-
       foreach ($p in $this.heapAllocs) {
          [IntPtr] $retPtr = [Runtime.InteropServices.Marshal]::FreeHGlobal($p);
       }
