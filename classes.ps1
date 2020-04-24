@@ -1,5 +1,5 @@
 #
-#  Version 0.06
+#  Version 0.07
 #
 set-strictMode -version 2
 
@@ -123,8 +123,25 @@ class sqliteDB {
       return $stmt
    }
 
+   [IntPtr] hidden nextStmt([IntPtr] $stmtHandle) {
+      return [sqlite]::next_stmt($this.db, $stmtHandle)
+   }
 
    [void] close() {
+
+      $openStmtHandles = new-object System.Collections.Generic.List[IntPtr]
+
+     [IntPtr] $openStmtHandle = 0
+      while ( ($openStmtHandle = $this.nextStmt($openStmtHandle)) -ne 0) {
+          $openStmtHandles.add($openStmtHandle)
+      }
+      foreach ($openStmtHandle in $openStmtHandles) {
+          $res = [sqlite]::finalize($openStmtHandle)
+          if ($res -ne [sqlite]::OK) {
+             throw "sqliteFinalize: res = $res"
+          }
+      }
+
       $res = [sqlite]::close($this.db)
 
       if ($res -ne [sqlite]::OK) {
