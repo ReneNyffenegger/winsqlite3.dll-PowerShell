@@ -53,13 +53,13 @@ class sqliteDB {
       [bool  ] $new
    ) {
 
-   if ($new) {
-      if (test-path $dbFileName) {
-         remove-item $dbFileName # Don't use '-errorAction ignore' to get error message
+      if ($new) {
+         if (test-path $dbFileName) {
+            remove-item $dbFileName # Don't use '-errorAction ignore' to get error message
+         }
       }
-   }
 
-   $this.open($dbFileName, $new)
+      $this.open($dbFileName, $new)
 
    }
 
