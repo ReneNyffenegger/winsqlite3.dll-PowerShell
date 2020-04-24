@@ -4,7 +4,7 @@
    Version 0.04
 #>
 
-set-strictMode -version 2
+set-strictMode -version latest
 
 [sqliteDB] $db = [sqliteDB]::new("$($pwd)\the.db", $true)
 

@@ -1,7 +1,7 @@
 #
 #  Version 0.07
 #
-set-strictMode -version 2
+set-strictMode -version latest
 
 function utf8PointerToStr([IntPtr]$charPtr) {
   [OutputType([String])]

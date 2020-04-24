@@ -6,7 +6,7 @@
     Compare with https://renenyffenegger.ch/notes/development/databases/SQLite/VBA/index
 #>
 
-set-strictMode -version 2
+set-strictMode -version latest
 
 add-type -typeDefinition @"
 using System;
