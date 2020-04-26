@@ -1,7 +1,7 @@
 <#
     P/Invoke wrappers that allow to access winsqlite3.dll
 
-    Version 0.07
+    Version 0.08
 
     Compare with https://renenyffenegger.ch/notes/development/databases/SQLite/VBA/index
 #>
