@@ -25,6 +25,26 @@ function utf8PointerToStr([IntPtr]$charPtr) {
    return [System.Text.Encoding]::UTF8.GetString($byteArray)
 }
 
+function pointerToByteArray([IntPtr]$blobPtr, [Int32]$len) {
+  [OutputType([Byte[]])]
+
+  [byte[]] $byteArray = new-object byte[] $len
+
+   for ($i = 0; $i -lt $len; $i++) {
+      $byteArray[$i] = [Runtime.InteropServices.Marshal]::ReadByte($blobPtr, $i)
+   }
+
+   return $byteArray
+}
+
+function byteArrayToPointer([Byte[]] $ary) {
+
+   [IntPtr] $heapPtr = [Runtime.InteropServices.Marshal]::AllocHGlobal($ary.Length);
+   [Runtime.InteropServices.Marshal]::Copy($ary, 0, $heapPtr, $ary.Length);
+
+   return $heapPtr
+}
+
 function strToUtf8Pointer([String] $str) {
    [OutputType([IntPtr])]
  #
@@ -38,10 +58,12 @@ function strToUtf8Pointer([String] $str) {
    [Byte[]] $bytes0    = new-object 'Byte[]' ($bytes.Length + 1)
    [Array]::Copy($bytes, $bytes0, $bytes.Length)
 
-   [IntPtr] $heapPtr = [Runtime.InteropServices.Marshal]::AllocHGlobal($bytes0.Length);
-   [Runtime.InteropServices.Marshal]::Copy($bytes0, 0, $heapPtr, $bytes0.Length);
+   return byteArrayToPointer $bytes0
 
-   return $heapPtr
+#  [IntPtr] $heapPtr = [Runtime.InteropServices.Marshal]::AllocHGlobal($bytes0.Length);
+#  [Runtime.InteropServices.Marshal]::Copy($bytes0, 0, $heapPtr, $bytes0.Length);
+
+#  return $heapPtr
 }
 
 class sqliteDB {
@@ -235,6 +257,15 @@ class sqliteStmt {
       elseif ( $value -is [Bool]) {
          $res = [sqlite]::bind_double($this.handle, $index, $value)
       }
+      elseif ( $value -is [Byte[]]) {
+
+         [IntPtr] $heapPtr = byteArrayToPointer $value
+         $res = [sqlite]::bind_blob($this.handle, $index, $heapPtr, $value.length, 0)
+       #
+       # Keep track of allocations on heap, free later
+       #
+         $this.heapAllocs += $heapPtr
+      }
       else {
          throw "type $($value.GetType()) not (yet?) supported"
       }
@@ -304,6 +335,12 @@ class sqliteStmt {
        return [sqlite]::column_type($this.handle, $index)
    }
 
+   [Int32] column_bytes(
+         [Int] $index
+   ) {
+       return [sqlite]::column_bytes($this.handle, $index)
+   }
+
 
    [object] col(
          [Int] $index
@@ -328,7 +365,8 @@ class sqliteStmt {
             return utf8PointerToStr $charPtr
          }
          ([sqlite]::BLOB)   {
-            return "TODO: blob"
+            [IntPtr] $blobPtr = [sqlite]::column_blob($this.handle, $index)
+            return pointerToByteArray $blobPtr $this.column_bytes($index)
          }
          ([sqlite]::NULL)    {
             return $null

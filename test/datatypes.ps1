@@ -14,7 +14,6 @@ function compare_next_row($stmt, $expected_id, $expected_val) {
    if ($stmt.col(1) -ne $expected_val) {
       write-warning "expected val $expected_val, got $($stmt.col(1))"
    }
-
 }
 
 
@@ -25,7 +24,10 @@ $db.exec('create table T (
     val
 )')
 
+
 $stmtIns = $db.prepareStmt('insert into T values (?, ?)');
+
+[byte[]] $byteArray = 42, 99, 255, 2, 18, 37, 0, 127, 222, 199
 
 $stmtIns.bindArrayStepReset( ( 1,                  1 ))
 $stmtIns.bindArrayStepReset( ( 2,                 -2 ))
@@ -38,6 +40,8 @@ $stmtIns.bindArrayStepReset( ( 8,              $true ))
 $stmtIns.bindArrayStepReset( ( 9,              $false))
 $stmtIns.bindArrayStepReset( (10,              $true ))
 $stmtIns.bindArrayStepReset( (11,              $false))
+$stmtIns.bindArrayStepReset( (12, $byteArray         ))
+
 
 $stmtIns.finalize()
 
@@ -54,6 +58,44 @@ compare_next_row $stmtSel  8               $true
 compare_next_row $stmtSel  9               $false
 compare_next_row $stmtSel 10                   1   # $true  is stored as 1
 compare_next_row $stmtSel 11                   0   # $false is stored as 0
+
+if ($stmtSel.step() -eq [sqlite]::DONE) {
+   write-warning 'DONE not expected'
+}
+if ($stmtSel.col(0) -ne 12) {
+   write-warning "expected id 12, got $($stmtSel.col(0))"
+}
+
+if ($stmtSel.column_type(1) -ne [sqlite]::BLOB ) {
+   write-warning "expected BLOB"
+}
+
+$arySel = $stmtSel.col(1)
+if (-not ($arySel -is [Byte[]])) {
+ #
+ # Commented, see https://stackoverflow.com/questions/61439620
+ #
+ # write-warning "expected byte array, got $($arySel.GetType().FullName)"
+}
+
+if ($arySel.length -ne $byteArray.length) {
+   write-warning "byte array length differs: $($arySel.length) -ne $($byteArray.length)"
+}
+
+for ($i = 0; $i -lt $arySel.length; $i++ ) {
+
+  if ($arySel[$i].GetType().FullName -ne 'System.Byte') {
+      write-warning $arySel[$i].GetType().FullName
+  }
+  if ($arySel[$i] -ne $byteArray[$i]) {
+      write-warning "Byte $i differs ($($arySel[$i]) <> $($byteArray[$i]))"
+  }
+}
+
+if ($stmtSel.step() -ne [sqlite]::DONE) {
+   write-warning 'DONE expected'
+}
+
 
 $stmtSel.finalize()
 
