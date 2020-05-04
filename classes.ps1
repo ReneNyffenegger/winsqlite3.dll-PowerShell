@@ -34,7 +34,13 @@ function pointerToByteArray([IntPtr]$blobPtr, [Int32]$len) {
       $byteArray[$i] = [Runtime.InteropServices.Marshal]::ReadByte($blobPtr, $i)
    }
 
-   return $byteArray
+ #
+ # The comma between the return statement and the
+ # $byteArray variable makes sure that a byte
+ # array is returned rather than a array of objects.
+ # See https://stackoverflow.com/a/61440166/180275
+ #
+   return ,$byteArray
 }
 
 function byteArrayToPointer([Byte[]] $ary) {
@@ -365,6 +371,7 @@ class sqliteStmt {
             return utf8PointerToStr $charPtr
          }
          ([sqlite]::BLOB)   {
+
             [IntPtr] $blobPtr = [sqlite]::column_blob($this.handle, $index)
             return pointerToByteArray $blobPtr $this.column_bytes($index)
          }

@@ -72,10 +72,7 @@ if ($stmtSel.column_type(1) -ne [sqlite]::BLOB ) {
 
 $arySel = $stmtSel.col(1)
 if (-not ($arySel -is [Byte[]])) {
- #
- # Commented, see https://stackoverflow.com/questions/61439620
- #
- # write-warning "expected byte array, got $($arySel.GetType().FullName)"
+    write-warning "expected byte array, got $($arySel.GetType().FullName)"
 }
 
 if ($arySel.length -ne $byteArray.length) {
