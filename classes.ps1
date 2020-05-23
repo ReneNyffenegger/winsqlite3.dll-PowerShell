@@ -37,7 +37,7 @@ function pointerToByteArray([IntPtr]$blobPtr, [Int32]$len) {
  #
  # The comma between the return statement and the
  # $byteArray variable makes sure that a byte
- # array is returned rather than a array of objects.
+ # array is returned rather than an array of objects.
  # See https://stackoverflow.com/a/61440166/180275
  #
    return ,$byteArray
