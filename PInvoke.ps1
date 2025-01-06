@@ -168,6 +168,20 @@ public static partial class sqlite {
             Int32    index
     );
 
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_name"
+    )]
+    public static extern IntPtr column_name (
+            IntPtr   stmt,
+            Int32    index
+    );
+
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_name16"
+    )]
+    public static extern IntPtr column_name16 (
+            IntPtr   stmt,
+            Int32    index
+    );
+
    [DllImport("winsqlite3.dll", EntryPoint="sqlite3_finalize")]
     public static extern IntPtr finalize (
            IntPtr    stmt
@@ -189,6 +203,10 @@ public static partial class sqlite {
            IntPtr    stmt
     );
 
+    [DllImport("winsqlite3.dll", EntryPoint="sqlite3_expanded_sql")]
+     public static extern IntPtr expanded_sql (
+	       IntPtr    stmt
+    );
 
 // [DllImport("winsqlite3.dll")]
 //   public static extern IntPtr sqlite3_clear_bindings(

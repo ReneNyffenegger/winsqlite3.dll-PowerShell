@@ -83,7 +83,10 @@ class sqliteDB {
 
       if ($new) {
          if (test-path $dbFileName) {
-            remove-item $dbFileName # Don't use '-errorAction ignore' to get error message
+			$removeItemError = $False
+			Remove-Item $dbFileName -ErrorAction SilentlyContinue -ErrorVariable removeItemError
+			if ($removeItemError) {
+				Throw "Remove-Item failed"
          }
       }
 
@@ -294,6 +297,12 @@ class sqliteStmt {
       throw "sqliteBind: res = $res"
    }
 
+   [string] expand_sql() {
+	   $sqlString = [SQLite]::expanded_sql($this.handle)
+	   [string] $expandedSqlString = [System.Runtime.InteropServices.Marshal]::PtrToStringAnsi($sqlString)
+	   return $expandedSqlString
+   }
+      
    [IntPtr] step() {
       $res = [sqlite]::step($this.handle)
       foreach ($p in $this.heapAllocs) {
@@ -347,6 +356,19 @@ class sqliteStmt {
        return [sqlite]::column_bytes($this.handle, $index)
    }
 
+   [object] column_name(
+         [Int] $index
+   ) {
+        [IntPtr] $charPtr = [sqlite]::column_name($this.handle, $index)
+        return utf8PointerToStr $charPtr
+   }
+   
+   [object] column_name16(
+         [Int] $index
+   ) {
+        [IntPtr] $charPtr = [sqlite]::column_name16($this.handle, $index)
+        return utf8PointerToStr $charPtr
+   }
 
    [object] col(
          [Int] $index
