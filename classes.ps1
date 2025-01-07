@@ -87,6 +87,7 @@ class sqliteDB {
 			Remove-Item $dbFileName -ErrorAction SilentlyContinue -ErrorVariable removeItemError
 			if ($removeItemError) {
 				Throw "Remove-Item failed"
+			}
          }
       }
 
