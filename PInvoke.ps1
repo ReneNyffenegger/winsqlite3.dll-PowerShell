@@ -1,7 +1,7 @@
 <#
     P/Invoke wrappers that allow to access winsqlite3.dll
 
-    Version 0.08
+    Version 0.09
 
     Compare with https://renenyffenegger.ch/notes/development/databases/SQLite/VBA/index
 #>
@@ -164,6 +164,13 @@ public static partial class sqlite {
    [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_bytes"
     )]
     public static extern Int32  column_bytes (
+            IntPtr   stmt,
+            Int32    index
+    );
+
+   [DllImport("winsqlite3.dll", EntryPoint="sqlite3_column_name"
+    )]
+    public static extern IntPtr column_name (
             IntPtr   stmt,
             Int32    index
     );

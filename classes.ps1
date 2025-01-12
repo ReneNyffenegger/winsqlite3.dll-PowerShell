@@ -347,6 +347,12 @@ class sqliteStmt {
        return [sqlite]::column_bytes($this.handle, $index)
    }
 
+   [object] column_name(
+         [Int] $index
+   ) {
+        [IntPtr] $charPtr = [sqlite]::column_name($this.handle, $index)
+        return utf8PointerToStr $charPtr
+   }
 
    [object] col(
          [Int] $index

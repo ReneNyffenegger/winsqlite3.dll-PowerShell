@@ -3,7 +3,7 @@ set-strictMode -version latest
 function compare_row($stmt, $id, $expected_val, $expected_length) {
 
    $stmt.reset()
-   $stmt.Bind(1, $id)
+   $stmt.bind(1, $id)
 
    if ($stmt.step() -eq [sqlite]::DONE) {
       write-warning 'DONE not expected'

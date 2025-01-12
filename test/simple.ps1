@@ -56,7 +56,7 @@ $stmt = $db.prepareStmt('select * from tab where foo > ? order by foo')
 
 write-host "column count of stmt: $($stmt.column_count())"
 
-$stmt.Bind(1, 50)
+$stmt.bind(1, 50)
 
 while ( $stmt.step()  -ne [sqlite]::DONE ) {
    echo "$($stmt.col(0)) | $($stmt.col(1)) | $($stmt.col(2))"
